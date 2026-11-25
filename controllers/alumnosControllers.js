@@ -63,7 +63,7 @@ export const getUnAlumno = async (req, res) => {
 
 
     const [alumno] = await connection.query(
-        "SELECT * FROM alumnos WHERE id = ? ",
+        "SELECT * FROM alumnos WHERE id_alumno = ? ",
         [idAlumno]
     );
 
@@ -82,7 +82,8 @@ export const getUnAlumno = async (req, res) => {
     }catch(error){
 
   
-    //a) mensaje amigable para el cliente
+    //a) mensaje amigable para el cliente, se muestra por consola el error
+    //para que yo misma pueda ver 
     console.error(error);
 
     //b) el servidor muestra el error real
