@@ -3,6 +3,7 @@ import express from "express";
 
 //Importamos el router, que exportamos en alumnosRouter.
 import alumnosRouter from "./routes/alumnosRoutes.js";
+import profesoresRouter from "./routes/profesoresRoutes.js";
 
 // El famoso servidor!!!!!!
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.json());
 
 //El middleware para manejar la ruta de alumnos
 app.use("/alumnos" , alumnosRouter);
+app.use("/profesores" , profesoresRouter);
 
 //Levanta el servidor
 app.listen( port, () => {
