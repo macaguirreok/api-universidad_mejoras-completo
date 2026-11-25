@@ -206,7 +206,7 @@ export const deleteAlumno = async (req,res) => {
     try{
 
     const [resultado] = await connection.query(
-        "DELETE FROM alumnos WHERE id = ?",
+        "DELETE FROM alumnos WHERE id_alumno = ?",
         [idAlumno]
     );
 
@@ -295,8 +295,13 @@ export const updateAlumno = async (req,res) => {
 
     try{
 
+   /* Tenemos dos niveles de protección, en el cambio de id de los alumnos.
+   Desde esta lógica no permitimos que se cambien los id, y la bd tiene su propia
+   restricción con respecto al cambio de id, pero en principio desde acá no lo 
+   permitimos.
+   En limpio: NO se puede modificar el id de un alumno, haciendo un put en th client */
     const [resultado] = await connection.query(
-        "UPDATE alumnos SET nombre = ?, edad = ? WHERE id = ?",
+        "UPDATE alumnos SET nombre = ?, edad = ? WHERE id_alumno = ?",
         [nombre, edad, idAlumno]
     );
 
