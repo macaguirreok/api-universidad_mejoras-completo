@@ -92,3 +92,84 @@ Si encuentra uno, el array tendrá un objeto con los datos del profesor. */
 
 
 }
+
+
+
+
+
+export const postProfesor = async(req,res) => {
+
+//La tabla profesores solo tienen id_profesor y nombre:
+
+// El id_profesor lo va a crear la bd sola, porque es un AUTO INCREMENT en la bd
+/*Esto es lo que envia la gente para crear el profesor:
+{
+    "nombre": "María"
+} 
+req.params es cuando los datos vienen en la URL ej: /profesores/5
+pero cuando vienen en el cuerpo de la petición como en este caso,
+se utiliza req.body */
+
+/*NOTA: en el controller, extraemos el dato enviado en el body con el
+MISMO nombre enviado en el json del thunder, todavia no tiene NADA que ver
+con los nombres usados en la bd. */
+
+const nombreProfesor = req.body.nombre;
+
+/*La validación con typeof si o si va antes que .trim, los numeros
+no tienen .trim asi que pasarían igual. */
+if(typeof nombreProfesor !== "string"){
+    return res.status(400).json({
+        mensaje: "El nombre tiene que ser un string"
+    })
+}
+
+
+if(nombreProfesor.trim() === ""){
+    return res.status(400).json({
+        mensaje : "El nombre del profesor no puede estar vacío"
+    })
+}
+
+
+try{ 
+
+    /* [Resultado] porque al hacer el post, Mysql2 devuelve un array
+    con dos objetos, el primero contiene info como insertID y a ese
+    lo obtenemos mediante la desestructuración de [Resultado] , el
+    otro objeto tiene info de los campos, que si lo quisieramos, lo 
+    obtendríamos de [Resultado, campos] */
+
+    const [Resultado] = await connection.query(
+        "INSERT INTO profesores(nombre) VALUES (?)",
+        [nombreProfesor]
+    );
+
+    //Agregar respuesta exitosa:
+
+    /* 200 OK: operación exitosa -> get y put
+       201 Created: se creó un recurso nuevo -> post */
+
+    
+        return res.status(201).json({
+            mensaje: "Registro exitoso",
+            id: Resultado.insertId,
+            nombre: nombreProfesor});
+        
+
+}catch(error){
+
+    console.error(error);
+
+    res.status(500).json({
+        mensaje: "Error interno del servidor"
+    })
+
+}
+
+
+
+
+
+
+}
