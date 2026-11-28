@@ -168,8 +168,154 @@ try{
 }
 
 
+}
 
 
 
+
+
+
+export const deleteProfesor = async (req,res) => {
+
+    // para borrar un profesor, tengo que saber el id del mismo
+    const idProfesor = req.params.id;
+
+    //Validaciones fuera del try catch
+
+    if(isNaN(idProfesor)){
+        return res.status(400).json({
+            mensaje: "El id debe ser un número"
+        })
+    }
+
+    if(idProfesor < 1){
+        return res.status(400).json({
+            mensaje: "El id no puede ser 0 ni negativo"
+        })
+    }
+
+    //dentro del try: la consulta a la bd y el resultado positivo
+
+    try{
+
+        const [respuesta] = await connection.query(
+            "DELETE FROM profesores WHERE id_profesor = ?",
+            [idProfesor]
+        );
+
+        if(respuesta.affectedRows !== 0){
+            return res.status(200).json({
+                mensaje: "se borró exitosamente"
+            })
+        }else{
+            return res.status(404).json({
+                mensaje: "No se eliminó ningun registro"
+            })
+        }
+
+
+    }catch(error){
+
+        //dentro del catch: error para la consola, y resultado
+        //de error para el cliente.
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor"
+        })
+
+
+    }
+
+
+}
+
+
+export const updateProfesor = async (req,res) => {
+    
+    const idProfesor = req.params.id;
+
+    //*Validación de !idAlumno para que no venga vacío, innecesaria, porque
+    //*si se quiere hacer un update solo a /alumnos , express devuelve un error 404
+
+
+    const {nombre} = req.body;
+
+    //*Validación nombre tiene que ser string
+    if(typeof nombre !== "string"){
+    return res.status(400).json({
+        mensaje: "El nombre debe ser un texto"
+    });
+}
+
+    //*Validación nombre no puede estar vacío
+    if(nombre.trim() === ""){
+        return res.status(400).json({
+            mensaje: "El nombre no puede estar vacío"
+        })
+    }
+
+
+    //* Validación id numérico
+    if(isNaN(idProfesor)){
+        return res.status(400).json({
+            mensaje: "El id debe ser numérico"
+        });
+    }
+
+    //* Validación id mayor a cero
+    if(idProfesor < 1){
+        return res.status(400).json({
+            mensaje: "El id debe ser mayor a cero"
+        });
+    }
+
+
+    //* Validación nombre no puede ser numérico
+    if(!isNaN(nombre)){
+        return res.status(400).json({
+            mensaje: "El nombre no puede ser numérico"
+        });
+    }
+
+    
+
+
+    try{
+
+   /* Tenemos dos niveles de protección, en el cambio de id de los alumnos.
+   Desde esta lógica no permitimos que se cambien los id, y la bd tiene su propia
+   restricción con respecto al cambio de id, pero en principio desde acá no lo 
+   permitimos.
+   En limpio: NO se puede modificar el id de un profesor, haciendo un put en th client 
+   en SET nombre = ? solo ese es el que permitimos cambiar.*/
+    const [resultado] = await connection.query(
+        "UPDATE profesores SET nombre = ? WHERE id_profesor = ?",
+        [nombre, idProfesor]
+    );
+
+    if(resultado.affectedRows === 0){
+        return res.status(404).json({
+            mensaje: "Profesor no encontrado"
+        });
+
+    }
+
+        res.status(200).json({
+            mensaje: "Profesor modificado exitosamente"
+        });
+
+    }catch(error){
+
+        //*Mensaje para el desarrollador
+        console.error(error);
+
+        //*Mensaje amigable para el cliente
+        res.status(500).json({
+            mensaje: "Error interno del servidor"
+        });
+    }
+    
 
 }
