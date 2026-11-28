@@ -232,6 +232,9 @@ export const deleteProfesor = async (req,res) => {
 }
 
 
+
+
+
 export const updateProfesor = async (req,res) => {
     
     const idProfesor = req.params.id;

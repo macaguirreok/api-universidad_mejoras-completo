@@ -142,3 +142,142 @@ export const postMateria = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+export const deleteMateria = async (req, res) => {
+
+    const idMateria = req.params.id;
+
+    // Validaciones fuera del try catch
+
+    if (isNaN(idMateria)) {
+        return res.status(400).json({
+            mensaje: "El id debe ser un número"
+        });
+    }
+
+    if (idMateria < 1) {
+        return res.status(400).json({
+            mensaje: "El id no puede ser 0 ni negativo"
+        });
+    }
+
+    try {
+
+        const [respuesta] = await connection.query(
+            "DELETE FROM materias WHERE id_materia = ?",
+            [idMateria]
+        );
+
+        if (respuesta.affectedRows !== 0) {
+            return res.status(200).json({
+                mensaje: "Materia eliminada exitosamente"
+            });
+        } else {
+            return res.status(404).json({
+                mensaje: "No se encontró la materia"
+            });
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor"
+        });
+    }
+};
+
+
+export const updateMateria = async (req, res) => {
+
+    const idMateria = req.params.id;
+
+    //se puede cambiar el nombre de la materia y/o el profesor que la dicta (por lo q se modifica su id).
+    const { nombre, id_profesor } = req.body;
+
+    //* Validación nombre tiene que ser string
+    if (typeof nombre !== "string") {
+        return res.status(400).json({
+            mensaje: "El nombre debe ser un texto"
+        });
+    }
+
+    //* Validación nombre no puede estar vacío
+    if (nombre.trim() === "") {
+        return res.status(400).json({
+            mensaje: "El nombre no puede estar vacío"
+        });
+    }
+
+    //* Validación id numérico
+    if (isNaN(idMateria)) {
+        return res.status(400).json({
+            mensaje: "El id debe ser numérico"
+        });
+    }
+
+    //* Validación id mayor a cero
+    if (idMateria < 1) {
+        return res.status(400).json({
+            mensaje: "El id debe ser mayor a cero"
+        });
+    }
+
+    //* Validación id_profesor numérico
+    if (isNaN(id_profesor)) {
+        return res.status(400).json({
+            mensaje: "El id del profesor debe ser numérico"
+        });
+    }
+
+    //* Validación id_profesor mayor a cero
+    if (id_profesor < 1) {
+        return res.status(400).json({
+            mensaje: "El id del profesor debe ser mayor a cero"
+        });
+    }
+
+    //* Validación nombre no puede ser numérico
+    if (!isNaN(nombre)) {
+        return res.status(400).json({
+            mensaje: "El nombre no puede ser numérico"
+        });
+    }
+
+    try {
+
+        const [resultado] = await connection.query(
+            "UPDATE materias SET nombre = ?, id_profesor = ? WHERE id_materia = ?",
+            [nombre, id_profesor, idMateria]
+        );
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+                mensaje: "Materia no encontrada"
+            });
+        }
+
+        res.status(200).json({
+            mensaje: "Materia modificada exitosamente"
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        if (error.code === "ER_NO_REFERENCED_ROW_2") {
+            return res.status(400).json({
+                mensaje: "El profesor no existe"
+            });
+        }
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor"
+        });
+    }
+};
